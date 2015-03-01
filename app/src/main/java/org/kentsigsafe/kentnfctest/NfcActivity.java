@@ -70,15 +70,16 @@ public class NfcActivity extends Activity {
     // fired directly from foreground dispatch
     public void onTagDiscovered(Tag tag) {
 
+        /*
         IsoDep isoDep = IsoDep.get(tag);
         try {
             isoDep.connect();
-            mNfcApi.setIsoDep(isoDep);
+            mNfcApi.setNfcTech(isoDep);
             byte[] result = mNfcApi.echo();
         }
         catch(IOException e){
             //this.showMessage("IO Exception");
-        }
+        }*/
     }
 
     // fired from background dispatch

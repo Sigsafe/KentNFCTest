@@ -1,27 +1,28 @@
 package org.kentsigsafe.kentnfctest;
 
 import android.nfc.tech.IsoDep;
+import android.nfc.tech.NfcA;
 import android.util.Log;
 import java.io.IOException;
 
 public class NfcApi {
     private static final int TIMEOUT = 30000;
 
-    private IsoDep mIsoDep;
+    private NfcA mNfcTech;
 
     public NfcApi() {}
 
-    public NfcApi(IsoDep isoDep) {
-        setIsoDep(isoDep);
+    public NfcApi(NfcA nfcTech) {
+        setNfcTech(nfcTech);
     }
 
-    public void setIsoDep(IsoDep isoDep) {
-        mIsoDep = isoDep;
-        mIsoDep.setTimeout(30000);
+    public void setNfcTech(NfcA nfcTech) {
+        mNfcTech = nfcTech;
+        //mNfcTech.setTimeout(30000);
     }
 
     public void connect() throws IOException {
-        mIsoDep.connect();
+        mNfcTech.connect();
     }
 
     public byte[] echo() throws IOException {
@@ -36,9 +37,9 @@ public class NfcApi {
                 (byte) 0x22,
                 (byte) 0xCA,
                 (byte) 0xFE,
-                (byte) 0xFF // max respone length
+                (byte) 0xFF // max response length
         };
-        byte[] result = mIsoDep.transceive(ECHO);
+        byte[] result = mNfcTech.transceive(ECHO);
         return result;
     }
 }

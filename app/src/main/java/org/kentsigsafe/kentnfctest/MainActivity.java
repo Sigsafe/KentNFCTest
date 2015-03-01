@@ -91,16 +91,16 @@ public class MainActivity extends ActionBarActivity implements ReaderCallback {
     @Override
     public void onTagDiscovered(Tag tag) {
 
-        IsoDep isoDep = IsoDep.get(tag);
+        NfcA nfcTech = NfcA.get(tag);
         try {
-            mNfcApi.setIsoDep(isoDep);
+            mNfcApi.setNfcTech(nfcTech);
             mNfcApi.connect();
             byte[] result = mNfcApi.echo();
             String strResult = this.byteArrayToHex(result);
-            this.showMessage(strResult);
+            this.broadcastMessage(strResult);
         }
         catch(IOException e){
-            //this.showMessage("IO Exception");
+            this.broadcastMessage("IO Exception");
         }
     }
 
@@ -139,6 +139,12 @@ public class MainActivity extends ActionBarActivity implements ReaderCallback {
             MainActivity.this.showMessage(msg);
         }
     };
+
+    private void broadcastMessage(String msg) {
+        Intent intent = new Intent("nfc-output");
+        intent.putExtra("message", msg);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+    }
 
     private void showMessage(String msg) {
         TextView tv = (TextView) findViewById(R.id.main_output);
