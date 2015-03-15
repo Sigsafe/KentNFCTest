@@ -51,7 +51,7 @@ public class MainActivity extends ActionBarActivity implements ReaderCallback {
         // put NFC tag into reader mode, as workaround for android bug - THIS WILL DISABLE NDEF intents!
         this.enableReaderMode(true);
 
-        this.showMessage("Hello. I want to get close and personal with a Sigsafe");
+        this.showMessage("Tap SigSafe");
     }
 
     @Override
@@ -91,13 +91,14 @@ public class MainActivity extends ActionBarActivity implements ReaderCallback {
     @Override
     public void onTagDiscovered(Tag tag) {
 
-        NfcA nfcTech = NfcA.get(tag);
+        IsoDep nfcTech = IsoDep.get(tag);
         try {
             mNfcApi.setNfcTech(nfcTech);
-            mNfcApi.connect();
-            byte[] result = mNfcApi.echo();
-            String strResult = this.byteArrayToHex(result);
-            this.broadcastMessage(strResult);
+            for(int i = 0; i < 1000000; i++) {
+                byte[] result = mNfcApi.echo();
+                String strResult = this.byteArrayToHex(result);
+                this.broadcastMessage(strResult + " (" + i + ")");
+            }
         }
         catch(IOException e){
             this.broadcastMessage("IO Exception");
@@ -124,7 +125,7 @@ public class MainActivity extends ActionBarActivity implements ReaderCallback {
         if(enable) {
             Bundle options = new Bundle();
             options.putInt(NfcAdapter.EXTRA_READER_PRESENCE_CHECK_DELAY, 10000);
-            mNfcAdapter.enableReaderMode(this, this, NfcAdapter.FLAG_READER_NFC_A | NfcAdapter.FLAG_READER_SKIP_NDEF_CHECK, options);
+            mNfcAdapter.enableReaderMode(this, this, NfcAdapter.FLAG_READER_NFC_A | NfcAdapter.FLAG_READER_SKIP_NDEF_CHECK | NfcAdapter.FLAG_READER_NO_PLATFORM_SOUNDS, options);
         }
         else
             mNfcAdapter.disableReaderMode(this);

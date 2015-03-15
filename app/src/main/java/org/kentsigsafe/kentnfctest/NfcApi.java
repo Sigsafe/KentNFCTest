@@ -4,25 +4,31 @@ import android.nfc.tech.IsoDep;
 import android.nfc.tech.NfcA;
 import android.util.Log;
 import java.io.IOException;
+import java.lang.InterruptedException;
 
 public class NfcApi {
     private static final int TIMEOUT = 30000;
+    private static final int MAX_RETRIES = 100;
 
-    private NfcA mNfcTech;
+    private IsoDep mNfcTech;
 
     public NfcApi() {}
 
-    public NfcApi(NfcA nfcTech) {
+    public NfcApi(IsoDep nfcTech) {
         setNfcTech(nfcTech);
     }
 
-    public void setNfcTech(NfcA nfcTech) {
-        mNfcTech = nfcTech;
-        //mNfcTech.setTimeout(30000);
+    public void setNfcTech(IsoDep nfcTech) {
+      mNfcTech = nfcTech;
+      mNfcTech.setTimeout(30000);
     }
 
     public void connect() throws IOException {
-        mNfcTech.connect();
+      mNfcTech.connect();
+    }
+
+    public void disconnect() throws IOException {
+      mNfcTech.close();
     }
 
     public byte[] echo() throws IOException {
@@ -39,7 +45,27 @@ public class NfcApi {
                 (byte) 0xFE,
                 (byte) 0xFF // max response length
         };
-        byte[] result = mNfcTech.transceive(ECHO);
+        return sendCommand(ECHO);
+    }
+
+    public byte[] sendCommand(byte[] payload) throws IOException {
+        int retries = 0;
+        byte[] result = null;
+
+        boolean success = false;
+        while (!success && retries++ < MAX_RETRIES){
+            try {
+                connect();
+                result = mNfcTech.transceive(payload);
+
+                // 0xB2009001 and 0x00b29001 are errors
+                if (!(result == null || result[0] == 0xB2 || result[0] == 0x00))
+                  success = true;
+            } catch (IOException e) {
+            }
+
+            disconnect();
+        }
         return result;
     }
 }
