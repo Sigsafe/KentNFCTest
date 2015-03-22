@@ -13,9 +13,8 @@ import android.view.MenuItem;
 import android.nfc.*;
 import android.nfc.tech.*;
 import android.nfc.NfcAdapter.ReaderCallback;
-import android.app.Activity;
 import android.content.Intent;
-import android.os.Bundle;
+
 import java.io.IOException;
 import android.widget.TextView;
 
@@ -23,7 +22,7 @@ import android.widget.TextView;
 public class MainActivity extends ActionBarActivity implements ReaderCallback {
 
     private NfcAdapter mNfcAdapter;
-    private NfcApi mNfcApi;
+    private SigsafeNfcConnection mSigsafeNfcConnection;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +35,6 @@ public class MainActivity extends ActionBarActivity implements ReaderCallback {
 
         // check for NFC
         mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
-        mNfcApi = new NfcApi();
 
         if (mNfcAdapter == null) {
             handleNFCUnsupported();
@@ -92,16 +90,11 @@ public class MainActivity extends ActionBarActivity implements ReaderCallback {
     public void onTagDiscovered(Tag tag) {
 
         IsoDep nfcTech = IsoDep.get(tag);
-        try {
-            mNfcApi.setNfcTech(nfcTech);
-            for(int i = 0; i < 1000000; i++) {
-                byte[] result = mNfcApi.echo();
-                String strResult = this.byteArrayToHex(result);
-                this.broadcastMessage(strResult + " (" + i + ")");
-            }
-        }
-        catch(IOException e){
-            this.broadcastMessage("IO Exception");
+        mSigsafeNfcConnection = new SigsafeNfcConnection(nfcTech);
+        for(int i = 0; i < 1000000; i++) {
+            byte[] result = mSigsafeNfcConnection.echo();
+            String strResult = this.byteArrayToHex(result);
+            this.broadcastMessage(strResult + " (" + i + ")");
         }
     }
 
